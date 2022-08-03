@@ -21,11 +21,11 @@ public class ProductServiceWithNoCaching : Service<Product>, IProductService
         _mapper = mapper;
     }
 
+
     public async Task<CustomResponseDto<List<ProductWithCategoryDto>>> GetProductsWithCategory()
     {
         var products = await _productSeRepository.GetProductsWithCategory();
         var productsDto = _mapper.Map<List<ProductWithCategoryDto>>(products);
-
         return CustomResponseDto<List<ProductWithCategoryDto>>.Success(200, productsDto);
     }
 }
