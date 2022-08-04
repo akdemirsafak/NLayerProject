@@ -29,11 +29,9 @@ public class ProductServiceWithCaching : IProductService
 
         if (!_memoryCache.TryGetValue(CacheProductKey,
                 out _)) //TryGetValue boolean değer ve cachedeki datayı döner, biz datayla ilgilenmediğimiz için out un yanında _ kullandık.
-        {
             _memoryCache.Set(CacheProductKey,
                 _repository.GetProductsWithCategory()
                     .Result); //if ile cache de data var mı baktık eğer data yoksa burada sorgumuzu attık ve datamızı cache'de tuttuk.
-        } //Constructor'da asenkron method kullanamadığımız için result'ını aldık.
     }
 
     public Task<IEnumerable<Product>> GetAllAsync()
@@ -44,10 +42,7 @@ public class ProductServiceWithCaching : IProductService
     public Task<Product> GetByIdAsync(int id)
     {
         var product = _memoryCache.Get<List<Product>>(CacheProductKey).FirstOrDefault(x => x.Id == id);
-        if (product is null)
-        {
-            throw new NotFoundException($"{typeof(Product).Name}({id}) not foud");
-        }
+        if (product is null) throw new NotFoundException($"{typeof(Product).Name}({id}) not foud");
 
         return Task.FromResult(product);
     }

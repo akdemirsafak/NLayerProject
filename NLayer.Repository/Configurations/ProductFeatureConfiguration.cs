@@ -8,7 +8,6 @@ public class ProductFeatureConfiguration : IEntityTypeConfiguration<ProductFeatu
 {
     public void Configure(EntityTypeBuilder<ProductFeature> builder)
     {
-        
         builder.Property(x => x.Id).UseIdentityColumn();
         builder.HasOne(x => x.Product)
             .WithOne(x => x.ProductFeature).HasForeignKey<ProductFeature>(x => x.ProductId);

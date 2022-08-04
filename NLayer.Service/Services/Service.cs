@@ -27,10 +27,7 @@ public class Service<T> : IService<T> where T : class
     {
         //return await _genericRepository.GetByIdAsync(id);
         var hasProduct = await _genericRepository.GetByIdAsync(id);
-        if (hasProduct==null)
-        {
-            throw new NotFoundException($"{typeof(T).Name} not found");
-        }
+        if (hasProduct == null) throw new NotFoundException($"{typeof(T).Name} not found");
 
         return hasProduct;
     }

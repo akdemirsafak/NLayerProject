@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NLayer.Core.Entities;
 
 public class Product : BaseEntity
