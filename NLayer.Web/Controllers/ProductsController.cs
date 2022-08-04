@@ -32,8 +32,8 @@ public class ProductsController : Controller
     public async Task<IActionResult> Save()
     {
         var categories = await _categoryService.GetAllAsync();
-        var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList()); //.ToList();
-        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name"); //2. parametre seçilen değer 3. parametre kullanıcıya gösterilecek değer.
+        var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList());
+        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name");
         return View();
     }
     [HttpPost]
@@ -47,23 +47,23 @@ public class ProductsController : Controller
         }
 
         var categories = await _categoryService.GetAllAsync();
-        var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList()); //ToList():
-        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name"); //2. parametre seçilen değer 3. parametre kullanıcıya gösterilecek değer.
+        var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList());
+        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name");
         return View();
 
     }
-    
-    
+
+    [ServiceFilter(typeof(NotFoundFilter<Product>))]
     [HttpGet]
     public async Task<IActionResult> Update(int id)
     {
         var product = await _productService.GetByIdAsync(id);
-        
+
         var categories = await _categoryService.GetAllAsync();
-        
+
         var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList());
         ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name", product.CategoryId);
-        return View( _mapper.Map<ProductDto>(product));
+        return View(_mapper.Map<ProductDto>(product));
     }
     [HttpPost]
     public async Task<IActionResult> Update(ProductDto productDto)
@@ -77,7 +77,7 @@ public class ProductsController : Controller
 
         var categories = await _categoryService.GetAllAsync();
         var categoriesDto = _mapper.Map<List<CategoryDto>>(categories.ToList());
-        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name",productDto.CategoryId); 
+        ViewBag.Categories = new SelectList(categoriesDto, "Id", "Name", productDto.CategoryId);
         return View(productDto);
 
     }
@@ -85,9 +85,9 @@ public class ProductsController : Controller
     public async Task<IActionResult> Remove(int id)
     {
         var product = await _productService.GetByIdAsync(id);
-            await _productService.RemoveAsync(product);
-            return RedirectToAction(nameof(Index));
+        await _productService.RemoveAsync(product);
+        return RedirectToAction(nameof(Index));
     }
 
-    
+
 }
