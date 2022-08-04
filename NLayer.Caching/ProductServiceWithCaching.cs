@@ -11,7 +11,7 @@ using NLayer.Service.Exceptions;
 
 namespace NLayer.Caching;
 
-public class ProductServiceWithCaching:IProductService
+public class ProductServiceWithCaching : IProductService
 {
     private const string CacheProductKey = "productsCache";
     private readonly IMapper _mapper;
@@ -19,17 +19,21 @@ public class ProductServiceWithCaching:IProductService
     private readonly IProductRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ProductServiceWithCaching(IMapper mapper, IMemoryCache memoryCache, IProductRepository repository, IUnitOfWork unitOfWork)
+    public ProductServiceWithCaching(IMapper mapper, IMemoryCache memoryCache, IProductRepository repository,
+        IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _memoryCache = memoryCache;
-        _repository = repository; 
+        _repository = repository;
         _unitOfWork = unitOfWork;
 
-        if (!_memoryCache.TryGetValue(CacheProductKey,out _)) //TryGetValue boolean değer ve cachedeki datayı döner, biz datayla ilgilenmediğimiz için out un yanında _ kullandık.
+        if (!_memoryCache.TryGetValue(CacheProductKey,
+                out _)) //TryGetValue boolean değer ve cachedeki datayı döner, biz datayla ilgilenmediğimiz için out un yanında _ kullandık.
         {
-            _memoryCache.Set(CacheProductKey, _repository.GetProductsWithCategory().Result); //if ile cache de data var mı baktık eğer data yoksa burada sorgumuzu attık ve datamızı cache'de tuttuk.
-        }//Constructor'da asenkron method kullanamadığımız için result'ını aldık.
+            _memoryCache.Set(CacheProductKey,
+                _repository.GetProductsWithCategory()
+                    .Result); //if ile cache de data var mı baktık eğer data yoksa burada sorgumuzu attık ve datamızı cache'de tuttuk.
+        } //Constructor'da asenkron method kullanamadığımız için result'ını aldık.
     }
 
     public Task<IEnumerable<Product>> GetAllAsync()
@@ -44,6 +48,7 @@ public class ProductServiceWithCaching:IProductService
         {
             throw new NotFoundException($"{typeof(Product).Name}({id}) not foud");
         }
+
         return Task.FromResult(product);
     }
 
@@ -60,7 +65,7 @@ public class ProductServiceWithCaching:IProductService
         throw new Exception("eeh");
     }
 
-    public  IQueryable<Product> Where(Expression<Func<Product, bool>> expression)
+    public IQueryable<Product> Where(Expression<Func<Product, bool>> expression)
     {
         return _memoryCache.Get<List<Product>>(CacheProductKey).Where(expression.Compile()).AsQueryable();
     }
@@ -81,7 +86,6 @@ public class ProductServiceWithCaching:IProductService
 
     public async Task<IEnumerable<Product>> AddRangeAsync(IEnumerable<Product> entities)
     {
-        
         _repository.AddRangeAsync(entities);
         await _unitOfWork.CommitAsync();
         await CacheAllProductsAsync();
@@ -95,11 +99,11 @@ public class ProductServiceWithCaching:IProductService
         await CacheAllProductsAsync();
     }
 
-    public Task<CustomResponseDto<List<ProductWithCategoryDto>>> GetProductsWithCategory()
+    public Task<List<ProductWithCategoryDto>> GetProductsWithCategory()
     {
         var products = _memoryCache.Get<List<Product>>(CacheProductKey);
         var productsWithCategoryDto = _mapper.Map<List<ProductWithCategoryDto>>(products);
-        return Task.FromResult(CustomResponseDto<List<ProductWithCategoryDto>>.Success(200,productsWithCategoryDto));
+        return Task.FromResult(productsWithCategoryDto);
     }
 
     public async Task CacheAllProductsAsync() //Ortak kullanılacak kısım olduğu için method'unu yazdık.
